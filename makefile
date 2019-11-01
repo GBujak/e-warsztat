@@ -1,2 +1,2 @@
 make: 
-	g++ src/main.cpp -o warsztat `wx-config --cxxflags --libs` -Wall
+	g++ src/* -o warsztat `wx-config --cxxflags --libs` -Wall
