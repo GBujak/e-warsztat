@@ -31,5 +31,9 @@
 *.out
 *.app
 
+<<<<<<< HEAD
 /warsztat
 warsztat
+=======
+/warsztat
+>>>>>>> 434dfc388656e8d2bf2280f64797bd1fc28636ad
