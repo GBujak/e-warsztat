@@ -26,8 +26,8 @@ MyFrame::MyFrame(const wxString& title,
 
     SetMenuBar(menuBar);
 
-    CreateStatusBar();
-    SetStatusText("Welcome to wxWidgets!");
+    // CreateStatusBar();
+    // SetStatusText("Welcome to wxWidgets!");
 }
 
 void MyFrame::OnExit(wxCommandEvent& event) {
