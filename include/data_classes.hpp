@@ -52,7 +52,7 @@ inline std::istream& operator>>(std::istream& stream, personal_t& personal) {
 }
 
 struct customer_t {
-    unsigned id;
+    int id;
     personal_t personal;
 };
 
@@ -69,9 +69,9 @@ inline std::istream& operator>>(std::istream& stream, customer_t& customer) {
 }
 
 struct employee_t {
-    unsigned id;
+    int id;
     personal_t personal;
-    unsigned salary;
+    int salary;
 };
 
 inline std::ostream& operator<<(std::ostream& stream, const employee_t& employee) {
