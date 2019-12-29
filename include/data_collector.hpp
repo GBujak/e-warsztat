@@ -15,7 +15,7 @@
  */
 
 class data_collector_t {
-    wxBoxSizer* sizer;
+    wxBoxSizer* sizer = nullptr;
     std::vector<
         std::pair<wxTextCtrl*, std::string*>
     > str_vec;
@@ -24,7 +24,7 @@ class data_collector_t {
     > int_vec;
     wxTextCtrl* new_text_ctrl(const char*);
     public:
-    data_collector_t(wxBoxSizer*);
+    void set_sizer(wxBoxSizer*);
     void add(std::string*, const char*);
     void add(int*, const char*);
     bool collect();

@@ -27,3 +27,11 @@ void datastore_t::load(std::istream& input) {
         }
     }
 }
+
+void datastore_t::add(customer_t customer) {
+    customers.push_back(customer);
+}
+
+void datastore_t::add(employee_t employee) {
+    employees.push_back(employee);
+}

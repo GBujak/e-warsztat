@@ -1,10 +1,14 @@
 #include "../include/data_collector.hpp"
+#include <cassert>
 
-data_collector_t::data_collector_t(wxBoxSizer* sizer)
-    : sizer(sizer) {}
+void
+data_collector_t::set_sizer(wxBoxSizer* sizer) {
+    this->sizer = sizer;
+}
 
 void
 data_collector_t::add(int* data, const char* label) {
+    assert(this->sizer != nullptr);
     auto ctrl = new_text_ctrl(label);
     int_vec.push_back(
         std::pair<wxTextCtrl*, int*>{ctrl, data}
@@ -13,6 +17,7 @@ data_collector_t::add(int* data, const char* label) {
 
 void
 data_collector_t::add(std::string* data, const char* label) {
+    assert(this->sizer != nullptr);
     auto ctrl = new_text_ctrl(label);
     str_vec.push_back(
         std::pair<wxTextCtrl*, std::string*>{ctrl, data}
@@ -25,13 +30,16 @@ data_collector_t::new_text_ctrl(const char* label) {
         sizer->GetContainingWindow(),
         wxNewId()
     };
-    ctrl->SetLabel(label);
+    sizer->Add(
+        new wxStaticText{sizer->GetContainingWindow(), wxNewId(), label}
+    );
     sizer->Add(ctrl, wxSizerFlags{1}.Expand());
     return ctrl;
 }
 
 bool
 data_collector_t::collect() {
+    assert(this->sizer != nullptr);
     bool ret = true;
     for (auto& i : str_vec) {
         *(i.second) = i.first->GetValue().ToStdString();

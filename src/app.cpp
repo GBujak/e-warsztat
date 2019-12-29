@@ -5,8 +5,8 @@
 wxIMPLEMENT_APP(MyApp);
 
 bool MyApp::OnInit() {
-    MyFrame* frame = new MyFrame(
+    main_frame = new MyFrame(
         "Hello world", {50, 50}, {450, 340});
-    frame->Show(true);
+    main_frame->Show(true);
     return true;
 }

@@ -4,6 +4,9 @@
 #include "../include/frame.hpp"
 #include "../include/data_store.hpp"
 #include "../include/globals.hpp"
+#include "../include/new_data_window.hpp"
+
+datastore_t g_datastore;
 
 wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_MENU(ID_Hello,   MyFrame::OnHello)
@@ -11,6 +14,7 @@ wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_MENU(wxID_ABOUT, MyFrame::OnAbout)
     EVT_MENU(wxID_OPEN,  MyFrame::OnOpen)
     EVT_MENU(wxID_SAVE,  MyFrame::OnSave)
+    EVT_MENU(wxID_NEW,   MyFrame::OnNew)
 wxEND_EVENT_TABLE()
 
 MyFrame::MyFrame(const wxString& title,
@@ -20,6 +24,7 @@ MyFrame::MyFrame(const wxString& title,
     wxMenu* menuFile = new wxMenu;
     menuFile->Append(wxID_OPEN, "&Open...\tCtrl-O");
     menuFile->Append(wxID_SAVE, "&Save...\tCtrl-S");
+    menuFile->Append(wxID_NEW, "&New...\tCtrl-N");
     menuFile->Append(ID_Hello, "&Hello...\tCtrl-H");
     menuFile->AppendSeparator();
     menuFile->Append(wxID_EXIT);
@@ -79,4 +84,9 @@ void MyFrame::OnSave(wxCommandEvent& event) {
     }
 
     g_datastore.save(stream);
+}
+
+void MyFrame::OnNew(wxCommandEvent& event) {
+    new_data_window_t new_data_window {this};
+    new_data_window.ShowModal();
 }

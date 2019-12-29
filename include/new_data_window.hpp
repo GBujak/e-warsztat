@@ -6,48 +6,27 @@
 #include <unordered_map>
 #include <string>
 #include "data_classes.hpp"
+#include "data_collector.hpp"
+#include "globals.hpp"
+
+#define CHOICE_NUMBER 2
 
 typedef std::function<void(wxEvent&)> event_functor_t;
 
-constexpr int choice_num = 2;
-const std::vector<std::string> common_fields {
-    "Street", "City", "Country",
-    "Name", "Surname"
-};
-
-class new_data_window_t : public wxFrame {
+class new_data_window_t : public wxDialog {
 
     std::unordered_map<std::string, wxTextCtrl*> input_fields;
-    event_functor_t on_type_selected = [this] (wxEvent& event) {
-        int selection = choice_widget->GetSelection();
-        choice_widget->Disable();
-        for (auto label : common_fields) {
-            input_fields[label] = new wxTextCtrl {this, wxNewId()};
-            main_sizer->Add(input_fields[label], wxSizerFlags{1});
-        }
-        if (selection == 1) {
-            input_fields["Salary"] = new wxTextCtrl {this, wxNewId()};
-            main_sizer->Add(input_fields["Salary"], wxSizerFlags{1});
-        } // <-- TU KONIEC
-    };
+    event_functor_t on_type_selected;
+    event_functor_t on_commit;
 
-    const wxString choices[choice_num] = {"Customer", "Employee"};
+    const wxString choices[CHOICE_NUMBER] = {"Customer", "Employee"};
+    customer_t customer;
+    employee_t employee;
+
+    data_collector_t collector;
+    
     wxBoxSizer* main_sizer;
     wxChoice* choice_widget;
     public:
-    new_data_window_t() {
-        this->Create(nullptr, wxNewId(), "Create new data");
-        main_sizer = new wxBoxSizer(wxVERTICAL);
-        choice_widget = new wxChoice {
-            this, wxNewId(),
-            wxDefaultPosition, wxDefaultSize,
-            2, choices
-        };
-
-        main_sizer->Add(choice_widget, wxSizerFlags{1});
-
-        this->Bind(wxEVT_CHOICE, on_type_selected);
-
-        SetSizerAndFit(main_sizer);
-    }
+    new_data_window_t(wxWindow*);
 };

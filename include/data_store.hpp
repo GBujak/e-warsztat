@@ -14,6 +14,8 @@ class datastore_t {
     std::vector<employee_t> employees;
 
     public:
+    void add(employee_t);
+    void add(customer_t);
     void save(std::ostream& output);
     void load(std::istream& input);
 };

@@ -12,6 +12,7 @@ class MyFrame : public wxFrame {
     void OnAbout (wxCommandEvent& event);
     void OnSave  (wxCommandEvent& event);
     void OnOpen  (wxCommandEvent& event);
+    void OnNew   (wxCommandEvent& event);
 
     wxDECLARE_EVENT_TABLE();
 };
