@@ -1,3 +1,8 @@
+#pragma once
+
+#ifndef DATA_STORE_HPP
+#define DATA_STORE_HPP
+
 #include <vector>
 #include <iostream>
 #include <wx/wx.h>
@@ -9,6 +14,8 @@ class datastore_t {
     std::vector<employee_t> employees;
 
     public:
-    void save(std::ostream output);
-    void load(std::istream input);
+    void save(std::ostream& output);
+    void load(std::istream& input);
 };
+
+#endif

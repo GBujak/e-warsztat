@@ -1,3 +1,5 @@
+#pragma once
+
 #include <wx/wx.h>
 #include <string>
 #include <tuple>
@@ -28,5 +30,5 @@ class data_collector_t {
     bool collect();
 };
 
-void add(data_collector_t, customer_t);
-void add(data_collector_t, employee_t);
+void add(data_collector_t&, customer_t&);
+void add(data_collector_t&, employee_t&);

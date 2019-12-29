@@ -7,7 +7,7 @@ void
 data_collector_t::add(int* data, const char* label) {
     auto ctrl = new_text_ctrl(label);
     int_vec.push_back(
-        std::pair{ctrl, data}
+        std::pair<wxTextCtrl*, int*>{ctrl, data}
     );
 }
 
@@ -15,7 +15,7 @@ void
 data_collector_t::add(std::string* data, const char* label) {
     auto ctrl = new_text_ctrl(label);
     str_vec.push_back(
-        std::pair{ctrl, data}
+        std::pair<wxTextCtrl*, std::string*>{ctrl, data}
     );
 }
 
@@ -27,6 +27,7 @@ data_collector_t::new_text_ctrl(const char* label) {
     };
     ctrl->SetLabel(label);
     sizer->Add(ctrl, wxSizerFlags{1}.Expand());
+    return ctrl;
 }
 
 bool

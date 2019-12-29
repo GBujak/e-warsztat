@@ -1,3 +1,5 @@
+#pragma once
+
 #include <wx/wx.h>
 
 class MyFrame : public wxFrame {
@@ -8,6 +10,8 @@ class MyFrame : public wxFrame {
     void OnHello (wxCommandEvent& event);
     void OnExit  (wxCommandEvent& event);
     void OnAbout (wxCommandEvent& event);
+    void OnSave  (wxCommandEvent& event);
+    void OnOpen  (wxCommandEvent& event);
 
     wxDECLARE_EVENT_TABLE();
 };

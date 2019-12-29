@@ -1,20 +1,23 @@
+#pragma once
+
 #include <wx/wx.h>
 #include <functional>
 #include <vector>
 #include <unordered_map>
+#include <string>
 #include "data_classes.hpp"
 
 typedef std::function<void(wxEvent&)> event_functor_t;
 
 constexpr int choice_num = 2;
-const std::vector<wxString> common_fields {
+const std::vector<std::string> common_fields {
     "Street", "City", "Country",
     "Name", "Surname"
 };
 
 class new_data_window_t : public wxFrame {
 
-    std::unordered_map<wxString, wxTextCtrl*> input_fields;
+    std::unordered_map<std::string, wxTextCtrl*> input_fields;
     event_functor_t on_type_selected = [this] (wxEvent& event) {
         int selection = choice_widget->GetSelection();
         choice_widget->Disable();

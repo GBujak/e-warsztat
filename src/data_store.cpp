@@ -1,7 +1,7 @@
 #include "../include/data_store.hpp"
 #include <string>
 
-void datastore_t::save(std::ostream output) {
+void datastore_t::save(std::ostream& output) {
     for (const customer_t& customer : customers) {
         output << "BEGIN CUSTOMER\n";
         output << customer;
@@ -12,7 +12,7 @@ void datastore_t::save(std::ostream output) {
     }
 }
 
-void datastore_t::load(std::istream input) {
+void datastore_t::load(std::istream& input) {
     std::string current_line;
     while (input) {
         std::getline(input, current_line);

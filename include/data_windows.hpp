@@ -1,3 +1,5 @@
+#pragma once
+
 #include <wx/wx.h>
 #include "data_classes.hpp"
 

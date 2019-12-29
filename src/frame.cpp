@@ -1,10 +1,16 @@
 #include <wx/wx.h>
+#include <iostream>
+#include <fstream>
 #include "../include/frame.hpp"
+#include "../include/data_store.hpp"
+#include "../include/globals.hpp"
 
 wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_MENU(ID_Hello,   MyFrame::OnHello)
     EVT_MENU(wxID_EXIT,  MyFrame::OnExit)
     EVT_MENU(wxID_ABOUT, MyFrame::OnAbout)
+    EVT_MENU(wxID_OPEN,  MyFrame::OnOpen)
+    EVT_MENU(wxID_SAVE,  MyFrame::OnSave)
 wxEND_EVENT_TABLE()
 
 MyFrame::MyFrame(const wxString& title,
@@ -12,8 +18,9 @@ MyFrame::MyFrame(const wxString& title,
     : wxFrame (NULL, wxID_ANY, title, pos, size) {
     
     wxMenu* menuFile = new wxMenu;
-    menuFile->Append(ID_Hello, "&Hello...\tCtrl-H",
-                     "Help string shown in status bar");
+    menuFile->Append(wxID_OPEN, "&Open...\tCtrl-O");
+    menuFile->Append(wxID_SAVE, "&Save...\tCtrl-S");
+    menuFile->Append(ID_Hello, "&Hello...\tCtrl-H");
     menuFile->AppendSeparator();
     menuFile->Append(wxID_EXIT);
 
@@ -25,9 +32,6 @@ MyFrame::MyFrame(const wxString& title,
     menuBar->Append( menuHelp, "&Help" );
 
     SetMenuBar(menuBar);
-
-    // CreateStatusBar();
-    // SetStatusText("Welcome to wxWidgets!");
 }
 
 void MyFrame::OnExit(wxCommandEvent& event) {
@@ -41,4 +45,38 @@ void MyFrame::OnAbout(wxCommandEvent& event) {
 
 void MyFrame::OnHello(wxCommandEvent& event) {
     wxLogMessage("Hello world from wxWidgets!");
+}
+
+void MyFrame::OnOpen(wxCommandEvent& event) {
+    wxFileDialog openFileDialog(this, _("Open XYZ file"), "", "",
+                                "XYZ files (*.xyz)|*.xyz", wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+
+    if (openFileDialog.ShowModal() == wxID_CANCEL)
+        return;
+    
+    std::ifstream stream;
+    stream.open(openFileDialog.GetPath());
+    if (stream.fail()) {
+        wxLogError("Cannot open file " + openFileDialog.GetPath());
+        return;
+    }
+
+    g_datastore.load(stream);
+}
+
+void MyFrame::OnSave(wxCommandEvent& event) {
+    wxFileDialog 
+        saveFileDialog(this, _("Save XYZ file"), "", "",
+                       "XYZ files (*.xyz)|*.xyz", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    if (saveFileDialog.ShowModal() == wxID_CANCEL)
+        return;
+    
+    std::ofstream stream;
+    stream.open(saveFileDialog.GetPath());
+    if (stream.fail()) {
+        wxLogError("Cannot open file " + saveFileDialog.GetPath());
+        return;
+    }
+
+    g_datastore.save(stream);
 }
