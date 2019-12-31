@@ -7,9 +7,9 @@ struct address_t {
 };
 
 inline std::ostream& operator<<(std::ostream& stream, const address_t& address) {
-    stream << address.street  << '\n'
-           << address.city    << '\n'
-           << address.country << '\n';
+    stream << address.street  << ' '
+           << address.city    << ' '
+           << address.country;
     return stream;
 }
 
@@ -25,8 +25,8 @@ struct name_t {
 };
 
 inline std::ostream& operator<<(std::ostream& stream, const name_t& name) {
-    stream << name.name    << '\n'
-           << name.surname << '\n';
+    stream << name.name    << ' '
+           << name.surname;
     return stream;
 }
 
@@ -42,8 +42,8 @@ struct personal_t {
 };
 
 inline std::ostream& operator<<(std::ostream& stream, const personal_t& personal) {
-    stream << personal.name    << '\n'
-           << personal.address << '\n';
+    stream << personal.name    << ' '
+           << personal.address;
     return stream;
 }
 
@@ -59,8 +59,8 @@ struct customer_t {
 };
 
 inline std::ostream& operator<<(std::ostream& stream, const customer_t& customer) {
-    stream << customer.id       << '\n'
-           << customer.personal << '\n';
+    stream << customer.id       << ' '
+           << customer.personal;
     return stream;
 }
 
@@ -77,9 +77,9 @@ struct employee_t {
 };
 
 inline std::ostream& operator<<(std::ostream& stream, const employee_t& employee) {
-    stream << employee.id       << '\n'
-           << employee.personal << '\n'
-           << employee.salary   << '\n';
+    stream << employee.id       << ' '
+           << employee.personal << ' '
+           << employee.salary;
     return stream;
 }
 
