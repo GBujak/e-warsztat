@@ -6,7 +6,7 @@ void datastore_t::save(std::ostream& output) {
         output << "BEGIN CUSTOMER\n";
         output << customer << '\n';
     }
-    for (const employee_t employee : employees) {
+    for (const employee_t& employee : employees) {
         output << "BEGIN EMPLOYEE\n";
         output << employee << '\n';
     }
@@ -16,7 +16,6 @@ void datastore_t::load(std::istream& input) {
     std::string current_line;
     while (input) {
         std::getline(input, current_line);
-        std::cout << "Got line: |" << current_line << "| END" << std::endl;
         if (current_line == "BEGIN CUSTOMER") {
             customer_t new_customer;
             input >> new_customer;
