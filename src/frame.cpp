@@ -6,8 +6,6 @@
 #include "../include/globals.hpp"
 #include "../include/new_data_window.hpp"
 
-datastore_t g_datastore;
-
 wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_MENU(ID_Hello,   MyFrame::OnHello)
     EVT_MENU(wxID_EXIT,  MyFrame::OnExit)
@@ -35,6 +33,10 @@ MyFrame::MyFrame(const wxString& title,
     wxMenuBar* menuBar = new wxMenuBar;
     menuBar->Append( menuFile, "&File" );
     menuBar->Append( menuHelp, "&Help" );
+
+    auto test = new wxBoxSizer{wxVERTICAL};
+    test->Add( new wxStaticText{this, -1, "Hello\nWorld!"} );
+    SetSizerAndFit(test);
 
     SetMenuBar(menuBar);
 }

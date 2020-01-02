@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <sstream>
 
 struct address_t {
     std::string street, city, country;
@@ -54,8 +55,11 @@ inline std::istream& operator>>(std::istream& stream, personal_t& personal) {
 }
 
 struct customer_t {
-    int id;
+    int id = 0;
     personal_t personal;
+
+    std::string display_name();
+    std::string to_str();
 };
 
 inline std::ostream& operator<<(std::ostream& stream, const customer_t& customer) {
@@ -71,9 +75,12 @@ inline std::istream& operator>>(std::istream& stream, customer_t& customer) {
 }
 
 struct employee_t {
-    int id;
+    int id = 0;
     personal_t personal;
-    int salary;
+    int salary = 0;
+
+    std::string display_name();
+    std::string to_str();
 };
 
 inline std::ostream& operator<<(std::ostream& stream, const employee_t& employee) {

@@ -11,8 +11,6 @@
 
 #define CHOICE_NUMBER 2
 
-typedef std::function<void(wxEvent&)> event_functor_t;
-
 class new_data_window_t : public wxDialog {
 
     std::unordered_map<std::string, wxTextCtrl*> input_fields;

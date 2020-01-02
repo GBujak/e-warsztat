@@ -1,5 +1,6 @@
 #include "../include/data_collector.hpp"
 #include <cassert>
+#include <string>
 
 void
 data_collector_t::set_sizer(wxBoxSizer* sizer) {
@@ -10,6 +11,7 @@ void
 data_collector_t::add(int* data, const char* label) {
     assert(this->sizer != nullptr);
     auto ctrl = new_text_ctrl(label);
+    ctrl->SetValue(std::to_string(*data));
     int_vec.push_back(
         std::pair<wxTextCtrl*, int*>{ctrl, data}
     );
@@ -19,6 +21,7 @@ void
 data_collector_t::add(std::string* data, const char* label) {
     assert(this->sizer != nullptr);
     auto ctrl = new_text_ctrl(label);
+    ctrl->SetValue(*data);
     str_vec.push_back(
         std::pair<wxTextCtrl*, std::string*>{ctrl, data}
     );

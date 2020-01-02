@@ -40,7 +40,6 @@ new_data_window_t::new_data_window_t(wxWindow* parent) {
                 break;
         }
         this->Close(true);
-        // static_cast<MyApp*>(wxTheApp)->main_frame->display_data();
     };
 
     main_sizer = new wxBoxSizer {wxVERTICAL};
