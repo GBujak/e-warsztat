@@ -1,5 +1,6 @@
 #include "../include/data_store.hpp"
 #include <string>
+#include <algorithm>
 
 void datastore_t::save(std::ostream& output) {
     for (const customer_t& customer : customers) {
@@ -28,10 +29,56 @@ void datastore_t::load(std::istream& input) {
     }
 }
 
+int datastore_t::get_max_customer_id() {
+    int max = -1;
+    for (const auto& customer : customers)
+        max = std::max(customer.id, max);
+    return max;
+}
+
+int datastore_t::get_max_employee_id() {
+    int max = -1;
+    for (const auto& employee : employees)
+        max = std::max(employee.id, max);
+    return max;
+}
+
+int datastore_t::get_max_appointment_id() {
+    int max = -1;
+    for (const auto& appointment : appointments)
+        max = std::max(appointment.id, max);
+    return max;
+}
+
 void datastore_t::add(customer_t customer) {
+    customer.id = this->get_max_customer_id() + 1;
     customers.push_back(customer);
 }
 
 void datastore_t::add(employee_t employee) {
+    employee.id = this->get_max_employee_id() + 1;
     employees.push_back(employee);
+}
+
+void datastore_t::add(appointment_t appointment) {
+    appointment.id = this->get_max_appointment_id() + 1;
+    appointments.push_back(appointment);
+}
+
+customer_t* datastore_t::get_customer(int id) {
+    for (auto& customer : customers)
+        if (customer.id == id) return &customer;
+    return nullptr;
+}
+
+customer_t* datastore_t::get_customer(int id) {
+    for (auto& customer : customers)
+        if (customer.id == id) return &customer;
+    return nullptr;
+}
+
+appointment_t* datastore_t::get_appointment(int id) {
+    for (auto& appointment : appointments)
+        if (appointment.id == id) return &appointment;
+    return nullptr;
 }

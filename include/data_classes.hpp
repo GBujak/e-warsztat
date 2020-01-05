@@ -96,3 +96,14 @@ inline std::istream& operator>>(std::istream& stream, employee_t& employee) {
            >> employee.salary;
     return stream;
 }
+
+struct appointment_t {
+    int id;
+    int customer_id, employee_id;
+
+    std::string date;
+    std::string description;
+
+    std::string to_str();
+    std::string display_name();
+};
