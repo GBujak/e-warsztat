@@ -34,9 +34,10 @@ MyFrame::MyFrame(const wxString& title,
     menuBar->Append( menuFile, "&File" );
     menuBar->Append( menuHelp, "&Help" );
 
-    auto test = new wxBoxSizer{wxVERTICAL};
-    test->Add( new wxStaticText{this, -1, "Hello\nWorld!"} );
-    SetSizerAndFit(test);
+    auto sizer = new wxBoxSizer{wxVERTICAL};
+    auto list = new display_list_t{this};
+    sizer->Add(list, wxSizerFlags(1).Expand());
+    list->display(1);
 
     SetMenuBar(menuBar);
 }

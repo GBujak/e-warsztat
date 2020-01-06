@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wx/wx.h>
+#include "display_list.hpp"
 
 class MyFrame : public wxFrame {
     public:
@@ -15,8 +16,6 @@ class MyFrame : public wxFrame {
     void OnNew   (wxCommandEvent& event);
 
     wxDECLARE_EVENT_TABLE();
-
-    public:
 };
 
 enum {
