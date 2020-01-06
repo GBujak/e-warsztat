@@ -58,20 +58,23 @@ data_collector_t::collect() {
 }
 
 void add(data_collector_t& collector, customer_t& customer) {
-    collector.add(&customer.id, "id");
-    collector.add(&customer.personal.name.name, "name");
-    collector.add(&customer.personal.name.surname, "surname");
-    collector.add(&customer.personal.address.city, "city");
-    collector.add(&customer.personal.address.country, "country");
-    collector.add(&customer.personal.address.street, "street");
+    collector.add(&customer.personal.name.name, "Imię");
+    collector.add(&customer.personal.name.surname, "Nazwisko");
+    collector.add(&customer.personal.address.country, "Kraj");
+    collector.add(&customer.personal.address.city, "Miasto");
+    collector.add(&customer.personal.address.street, "Ulica");
 }
 
 void add(data_collector_t& collector, employee_t& employee) {
-    collector.add(&employee.id, "id");
-    collector.add(&employee.salary, "salary");
-    collector.add(&employee.personal.name.name, "name");
-    collector.add(&employee.personal.name.surname, "surname");
-    collector.add(&employee.personal.address.city, "city");
-    collector.add(&employee.personal.address.country, "country");
-    collector.add(&employee.personal.address.street, "street");
+    collector.add(&employee.salary, "Zarobki");
+    collector.add(&employee.personal.name.name, "Imię");
+    collector.add(&employee.personal.name.surname, "Nazwisko");
+    collector.add(&employee.personal.address.country, "Kraj");
+    collector.add(&employee.personal.address.city, "Miasto");
+    collector.add(&employee.personal.address.street, "Ulica");
+}
+
+void add(data_collector_t& collector, appointment_t& appointment) {
+    collector.add(&appointment.date, "Data");
+    collector.add(&appointment.description, "Opis");
 }

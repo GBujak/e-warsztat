@@ -29,6 +29,12 @@ class datastore_t {
 
     void save(std::ostream& output);
     void load(std::istream& input);
+
+    void delete_data(data_interface*);
+
+    std::vector<customer_t>& get_customers();
+    std::vector<employee_t>& get_employees();
+    std::vector<appointment_t>& get_appointments();
 };
 
 #endif

@@ -3,6 +3,11 @@
 #include <string>
 #include <sstream>
 
+struct data_interface {
+    virtual std::string to_str() = 0;
+    virtual std::string display_name() = 0;
+};
+
 struct address_t {
     std::string street, city, country;
 };
@@ -54,7 +59,7 @@ inline std::istream& operator>>(std::istream& stream, personal_t& personal) {
     return stream;
 }
 
-struct customer_t {
+struct customer_t : public data_interface{
     int id = 0;
     personal_t personal;
 
@@ -74,7 +79,7 @@ inline std::istream& operator>>(std::istream& stream, customer_t& customer) {
     return stream;
 }
 
-struct employee_t {
+struct employee_t : public data_interface {
     int id = 0;
     personal_t personal;
     int salary = 0;
@@ -97,7 +102,7 @@ inline std::istream& operator>>(std::istream& stream, employee_t& employee) {
     return stream;
 }
 
-struct appointment_t {
+struct appointment_t : public data_interface {
     int id;
     int customer_id, employee_id;
 

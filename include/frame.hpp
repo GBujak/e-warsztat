@@ -15,6 +15,8 @@ class MyFrame : public wxFrame {
     void OnNew   (wxCommandEvent& event);
 
     wxDECLARE_EVENT_TABLE();
+
+    public:
 };
 
 enum {
