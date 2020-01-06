@@ -2,6 +2,7 @@
 
 #include <wx/wx.h>
 #include "display_list.hpp"
+#include "globals.hpp"
 
 class MyFrame : public wxFrame {
     public:

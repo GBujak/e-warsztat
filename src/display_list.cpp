@@ -1,7 +1,7 @@
 #include "../include/display_list.hpp"
 
 display_list_t::display_list_t(wxWindow* parent) {
-    Create(parent, wxNewId());
+    Create(parent, wxNewId(), wxDefaultPosition, wxSize{500, 500});
 
     on_category = [this] (wxEvent& event) {
         auto button = (wxButton*) event.GetEventObject();
@@ -20,7 +20,10 @@ display_list_t::display_list_t(wxWindow* parent) {
     buttons["customers"] = new wxButton{this, wxNewId(), "Klienci"};
     buttons["employees"] = new wxButton{this, wxNewId(), "Pracownicy"};
     buttons["appointments"] = new wxButton{this, wxNewId(), "Wizyty"};
-    for (auto& button : buttons) button.second->Bind(wxEVT_BUTTON, on_category);
+    for (auto& button : buttons) {
+        button.second->Bind(wxEVT_BUTTON, on_category);
+        top_sizer->Add(button.second, wxSizerFlags(1).Expand());
+    }
 
     butlist = new button_list{this};
     butlist->draw();

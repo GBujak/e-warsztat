@@ -35,9 +35,8 @@ MyFrame::MyFrame(const wxString& title,
     menuBar->Append( menuHelp, "&Help" );
 
     auto sizer = new wxBoxSizer{wxVERTICAL};
-    auto list = new display_list_t{this};
-    sizer->Add(list, wxSizerFlags(1).Expand());
-    list->display(1);
+    g_display_list = new display_list_t{this};
+    sizer->Add(g_display_list, wxSizerFlags(1).Expand());
 
     SetMenuBar(menuBar);
 }

@@ -3,9 +3,11 @@
 #include <wx/wx.h>
 #include <map>
 #include <string>
-#include "globals.hpp"
 #include "data_classes.hpp"
 #include "buttons_list.hpp"
+
+#include <functional>
+typedef std::function<void(wxEvent&)> event_functor_t;
 
 class display_list_t : public wxWindow {
     wxBoxSizer* main_sizer;
