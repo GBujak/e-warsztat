@@ -69,6 +69,7 @@ void MyFrame::OnOpen(wxCommandEvent& event) {
     }
 
     g_datastore.load(stream);
+    g_display_list->display(0);
 }
 
 void MyFrame::OnSave(wxCommandEvent& event) {

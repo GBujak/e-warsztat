@@ -49,5 +49,4 @@ void display_list_t::display(int type) {
         butlist->add_button(&appt);
     
     butlist->draw();
-    SetSizerAndFit(main_sizer);
 }
