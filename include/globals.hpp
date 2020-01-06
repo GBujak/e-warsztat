@@ -2,8 +2,9 @@
 
 #include <functional>
 #include "data_store.hpp"
-#include "display_list.hpp"
-#include "detail_view.hpp"
+
+class display_list_t;
+class detail_view;
 
 typedef std::function<void(wxEvent&)> event_functor_t;
 

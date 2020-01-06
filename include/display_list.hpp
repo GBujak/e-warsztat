@@ -5,6 +5,7 @@
 #include <string>
 #include "data_classes.hpp"
 #include "buttons_list.hpp"
+#include "globals.hpp"
 
 #include <functional>
 typedef std::function<void(wxEvent&)> event_functor_t;
