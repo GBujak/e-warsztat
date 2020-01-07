@@ -5,8 +5,10 @@
 * Baza pracowników
 * Baza klientów
 * Umawianie na wizyty serwisowe
-* Dodatkowe funkcje:
-  * --- do ustalenia ---
+
+### Do zrobienia
+[X] Tworzenie wizyt
+[ ] Zapisywanie wizyt do pliku
 
 ## Obrona
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "data_classes.hpp"
+#include "detail_view.hpp"
 #include "globals.hpp"
 #include <wx/wx.h>
 

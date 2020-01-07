@@ -1,4 +1,5 @@
 #include "../include/globals.hpp"
+#include "../include/data_store.hpp"
 
 datastore_t g_datastore;
 

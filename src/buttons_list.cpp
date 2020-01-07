@@ -7,7 +7,7 @@ button_list::button_list(wxWindow* parent) {
 
 void button_list::add_button(data_interface* data) {
     auto button = new data_button{data, this};
-    main_sizer->Add(button, wxSizerFlags(1).Expand());
+    main_sizer->Add(button, wxSizerFlags(0).Expand());
 }
 
 void button_list::clear_all() {

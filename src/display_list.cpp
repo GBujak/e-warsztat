@@ -28,7 +28,7 @@ display_list_t::display_list_t(wxWindow* parent) {
     butlist = new button_list{this};
     butlist->draw();
 
-    main_sizer->Add(top_sizer, wxSizerFlags(1).Expand());
+    main_sizer->Add(top_sizer, wxSizerFlags(0).Expand());
     main_sizer->Add(butlist, wxSizerFlags(1).Expand());
 
     SetSizerAndFit(main_sizer);

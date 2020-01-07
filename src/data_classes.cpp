@@ -13,7 +13,7 @@ std::string customer_t::to_str() {
     std::stringstream stream;
     
     stream << "Id: " << id << '\n';
-    stream << "Imię: " << personal.name.name << '\n';
+    stream << "Imie: " << personal.name.name << '\n';
     stream << "Nazwisko: " << personal.name.name << '\n';
     stream << "Ulica: " << personal.address.street << '\n';
     stream << "Miasto: " << personal.address.city << '\n';
@@ -27,7 +27,7 @@ std::string employee_t::to_str() {
     
     stream << "Id: " << id << '\n';
     stream << "Pensja: " << salary << '\n';
-    stream << "Imię: " << personal.name.name << '\n';
+    stream << "Imie: " << personal.name.name << '\n';
     stream << "Nazwisko: " << personal.name.name << '\n';
     stream << "Ulica: " << personal.address.street << '\n';
     stream << "Miasto: " << personal.address.city << '\n';
@@ -49,7 +49,8 @@ std::string appointment_t::to_str() {
     stream << "Pracownik:\n"
         << ((employee) ? employee->to_str() 
                        : "Nie znaleziono pracownika") << '\n';
-    stream << "Opis:\n" << this->description;
+    stream << "Opis:\n" << this->description << '\n';
+    stream << "Data:\n" << this->date << '\n';
     return stream.str();
 }
 

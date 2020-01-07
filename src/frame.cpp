@@ -5,6 +5,7 @@
 #include "../include/data_store.hpp"
 #include "../include/globals.hpp"
 #include "../include/new_data_window.hpp"
+#include "../include/detail_view.hpp"
 
 wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_MENU(ID_Hello,   MyFrame::OnHello)
@@ -34,10 +35,13 @@ MyFrame::MyFrame(const wxString& title,
     menuBar->Append( menuFile, "&File" );
     menuBar->Append( menuHelp, "&Help" );
 
-    auto sizer = new wxBoxSizer{wxVERTICAL};
+    auto sizer = new wxBoxSizer{wxHORIZONTAL};
     g_display_list = new display_list_t{this};
     sizer->Add(g_display_list, wxSizerFlags(1).Expand());
+    g_detail_view = new detail_view{this};
+    sizer->Add(g_detail_view, wxSizerFlags(1).Expand());
 
+    SetSizerAndFit(sizer);
     SetMenuBar(menuBar);
 }
 

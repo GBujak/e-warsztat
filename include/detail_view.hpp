@@ -2,6 +2,7 @@
 
 #include "globals.hpp"
 #include "data_classes.hpp"
+#include "edit_data_window.hpp"
 #include <wx/wx.h>
 
 class detail_view : public wxWindow {
