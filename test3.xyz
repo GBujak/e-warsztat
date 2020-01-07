@@ -1,15 +1,13 @@
 BEGIN CUSTOMER
 0 Jendrzej lenartowicz 123 wpodja Czechoslowacja
 BEGIN CUSTOMER
-1 Jam Kowalaki Mala Kielce Polska
-BEGIN CUSTOMER
 2 Andrzej Syn_ciesli Galanteryjna Kielce Polska
 BEGIN CUSTOMER
 3 Andrij Kalmanawardze ulica_w_gruzji stolica_gruzji Gruzja
 BEGIN CUSTOMER
-4 Marcin Zedong Sliska Kielce Polska
+4 Marcin Zygadlo Sliska Kielce Polska
 BEGIN EMPLOYEE
-0 Andrzej Dudakowski Wiejska Warszawa Polska 2600
+0 Andrzej Dudakowski Wiejska Warszawa Polska 15000
 BEGIN EMPLOYEE
 1 Jan Nowak Mala Bydgoszcz Polska 2600
 BEGIN EMPLOYEE

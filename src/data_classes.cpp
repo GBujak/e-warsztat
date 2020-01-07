@@ -14,7 +14,7 @@ std::string customer_t::to_str() {
     
     stream << "Id: " << id << '\n';
     stream << "Imie: " << personal.name.name << '\n';
-    stream << "Nazwisko: " << personal.name.name << '\n';
+    stream << "Nazwisko: " << personal.name.surname << '\n';
     stream << "Ulica: " << personal.address.street << '\n';
     stream << "Miasto: " << personal.address.city << '\n';
     stream << "Kraj: " << personal.address.country << '\n';
