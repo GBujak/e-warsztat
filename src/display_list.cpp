@@ -41,6 +41,8 @@ void display_list_t::clear_items() {
 void display_list_t::display(int type) {
     if (type == 0) buttons["customers"]->Disable();
 
+    clear_items();
+
     if (type == 0) for (auto& cust : g_datastore.get_customers())
         butlist->add_button(&cust);
     if (type == 1) for (auto& empl : g_datastore.get_employees())

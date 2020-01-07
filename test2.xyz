@@ -96,3 +96,5 @@ BEGIN EMPLOYEE
 1 Jendrak Ciesla Galanteryjna Kielce Polska 15000
 BEGIN EMPLOYEE
 1 Jendrak Ciesla Galanteryjna Kielce Polska 15000
+BEGIN APPOINTMENT
+0 1 1 Maj Wymiana_samochodu

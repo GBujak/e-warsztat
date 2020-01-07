@@ -12,9 +12,17 @@ void datastore_t::save(std::ostream& output) {
         output << "BEGIN EMPLOYEE\n";
         output << employee << '\n';
     }
+    for (const appointment_t& app : appointments) {
+        output << "BEGIN APPOINTMENT\n";
+        output << app << '\n';
+    }
 }
 
 void datastore_t::load(std::istream& input) {
+    customers.clear();
+    employees.clear();
+    appointments.clear();
+
     std::string current_line;
     while (input) {
         std::getline(input, current_line);
@@ -26,6 +34,10 @@ void datastore_t::load(std::istream& input) {
             employee_t new_employee;
             input >> new_employee;
             employees.push_back(new_employee);
+        } else if (current_line == "BEGIN APPOINTMENT") {
+            appointment_t app;
+            input >> app;
+            appointments.push_back(app);
         }
     }
 }

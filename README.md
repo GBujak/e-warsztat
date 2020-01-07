@@ -9,6 +9,7 @@
 ### Do zrobienia
 - [x] Tworzenie wizyt
 - [ ] Zapisywanie wizyt do pliku
+- [x] Kasowanie datastore przy wczytaniu nowych danych
 
 ## Obrona
 

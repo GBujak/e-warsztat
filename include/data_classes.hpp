@@ -112,3 +112,24 @@ struct appointment_t : public data_interface {
     std::string to_str();
     std::string display_name();
 };
+
+inline std::ostream& operator<<(std::ostream& stream, const appointment_t& app) {
+    auto desc_tmp = app.description;
+    for (char& ch : desc_tmp) if (ch == ' ') ch = '_';
+
+    stream << app.id << ' ' << app.customer_id << ' ' << app.employee_id << ' '
+           << app.date << ' ' << desc_tmp;
+    return stream;
+}
+
+inline std::istream& operator>>(std::istream& stream, appointment_t& app) {
+    std::string desc_tmp;
+
+    stream >> app.id >> app.customer_id >> app.employee_id
+           >> app.date >> desc_tmp;
+
+    for (char& ch : desc_tmp) if (ch == '_') ch = ' ';
+    app.description = desc_tmp;
+
+    return stream;
+}

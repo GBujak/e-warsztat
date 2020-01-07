@@ -7,6 +7,7 @@ new_appointment::new_appointment(
     Create(parent, wxNewId(), "Nowa wizyta");
 
     auto sizer = new wxBoxSizer{wxVERTICAL};
+    SetSizer(sizer);
 
     collector.set_sizer(sizer);
     add(collector, appointment);
@@ -18,19 +19,20 @@ new_appointment::new_appointment(
     radio = new wxRadioBox{
         this, wxNewId(), "Pracownik:",
         wxDefaultPosition, wxDefaultSize,
-        options
+        options, 3
     };
     sizer->Add(radio, wxSizerFlags(1).Expand());
 
     auto commit = new wxButton{this, wxNewId(), "Dodaj"};
     sizer->Add(commit, wxSizerFlags(0).Expand());
 
-    on_commit = [this] (wxEvent& event) {
+    on_commit = [this, customer] (wxEvent& event) {
         if (!collector.collect()) return;
         auto empl_id = radio->GetSelection();
         if (empl_id == wxNOT_FOUND) return;
         appointment.employee_id = 
             g_datastore.get_employees()[empl_id].id;
+        appointment.customer_id = customer->id;
         g_datastore.add(appointment);
         this->Close(true);
     };
