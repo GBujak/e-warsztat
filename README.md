@@ -7,8 +7,8 @@
 * Umawianie na wizyty serwisowe
 
 ### Do zrobienia
-[X] Tworzenie wizyt
-[ ] Zapisywanie wizyt do pliku
+- [x] Tworzenie wizyt
+- [ ] Zapisywanie wizyt do pliku
 
 ## Obrona
 
