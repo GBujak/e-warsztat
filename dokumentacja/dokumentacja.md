@@ -1,6 +1,6 @@
 ---
 papersize: a4
-
+geometry: margin=3cm
 lang: pl
 
 title: Dokumentacja projektu - Programowanie w C 2
@@ -28,6 +28,11 @@ program graficzny spełniający następujące funkcje:
 Program został przygotowany przy użyciu biblioteki wxWidgets. Ta biblioteka
 umożliwia przygotowanie aplikacji graficznych działających na systemach
 operacyjnych Windows, MacOS oraz GNU/Linux. 
+
+**Dokumentacja nie skupia się na poszczególnych klasach, lecz funkcjonalnościach
+programu - kilka razy wraca do opisywania tej samej klasy. Uważamy, że w ten
+sposób łatwiej zrozumieć implementację konkretnej funkcjonalności, która może
+przydać do innego projektu, bez zapoznawania się z całą strukturą aplikacji.**
 
 \newpage
 
@@ -88,3 +93,104 @@ bool MyApp::OnInit() {
 }
 ```
 
+Klasa aplikacji jest typowa dla aplikacji korzystających z biblioteki wxWidgets.
+Jest to klasa (nazwana MyApp) dziedzicząca publicznie z klasy wxApp.
+Implementuje metodę OnInit, w której tworzy instancję klasy MyFrame i wywołuje
+jej metodę "Show".
+
+## Klasa MyFrame
+
+```cpp
+#pragma once
+
+#include <wx/wx.h>
+#include "display_list.hpp"
+#include "globals.hpp"
+
+class MyFrame : public wxFrame {
+    public:
+    MyFrame(const wxString& title, const wxPoint& pos,
+            const wxSize& size);
+    private:
+    void OnHello (wxCommandEvent& event);
+    void OnExit  (wxCommandEvent& event);
+    void OnAbout (wxCommandEvent& event);
+    void OnSave  (wxCommandEvent& event);
+    void OnOpen  (wxCommandEvent& event);
+    void OnNew   (wxCommandEvent& event);
+
+    wxDECLARE_EVENT_TABLE();
+};
+
+enum {
+    ID_Hello = 1
+};
+```
+ 
+Klasa MyFrame dziedziczy publicznie po klasie wxFrame. Metody, jakie
+zaimplementowaliśmy w tej klasie to konstruktor i kilka metod obsługujących
+wydarzenia.
+
+- OnExit - funkcja obsługuje wybranie obcji exit w menubarze
+- OnHello, OnAbout - funkcje obsługujące nazwane po sobie opcje w menubarze
+  Wyświetlają informacje o programie
+- OnSave, OnOpen - obsługują zapisywanie i wczytywanie danych do/z plików
+- OnNew - funkcja obsługuje opcję stworzenia nowych danych
+
+## Implementacja zapisywania i wczytywania danych
+
+### Interfejs (klasa MyFrame)
+
+```cpp
+void MyFrame::OnOpen(wxCommandEvent& event) {
+    wxFileDialog openFileDialog(this, _("Open XYZ file"), "", "",
+                                "XYZ files (*.xyz)|*.xyz", wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+
+    if (openFileDialog.ShowModal() == wxID_CANCEL)
+        return;
+    
+    std::ifstream stream;
+    stream.open(openFileDialog.GetPath());
+    if (stream.fail()) {
+        wxLogError("Cannot open file " + openFileDialog.GetPath());
+        return;
+    }
+
+    g_datastore.load(stream);
+    g_display_list->display(0);
+}
+
+void MyFrame::OnSave(wxCommandEvent& event) {
+    wxFileDialog 
+        saveFileDialog(this, _("Save XYZ file"), "", "",
+                       "XYZ files (*.xyz)|*.xyz", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    if (saveFileDialog.ShowModal() == wxID_CANCEL)
+        return;
+    
+    std::ofstream stream;
+    stream.open(saveFileDialog.GetPath());
+    if (stream.fail()) {
+        wxLogError("Cannot open file " + saveFileDialog.GetPath());
+        return;
+    }
+
+    g_datastore.save(stream);
+}
+```
+
+**W tym miejscu zaimplementowany jest tylko interfejs graficzny zapisywania i
+wczytywania danych. Prawdziwa implementacja znajduje się w klasie
+`datastore_t`.**
+
+---
+
+Jest to typowa implementacja interfejsu wyboru pliku w bibliotece wxWidgets.
+Niewiele różni się od przykładowej implementacji znajdującej się na wikipedii
+biblioteki. Interfejs wyboru pliku nie jest przygotowany przez nas i różni się
+prawie całkowicie na różnych systemach operacyjnych.
+
+### "Prawdziwa" implementacja (klasa datastore_t)
+
+Wszystkie informacje przechowywane w pamięci naszego programu znajdują się w
+klasie `datastore_t`. Jedna instancja tej klasy używana jest w całym programie,
+jako zmienna globalna `g_datastore`. 
