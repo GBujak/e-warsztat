@@ -1,6 +1,5 @@
 ---
 papersize: a4
-geometry: margin=3cm
 lang: pl
 
 title: Dokumentacja projektu - Programowanie w C 2
@@ -519,3 +518,858 @@ data_collector_t::collect() {
 }
 ```
 
+Implementacja metod `add` klasy datastore_t:
+
+```cpp
+void datastore_t::add(customer_t customer) {
+    customer.id = this->get_max_customer_id() + 1;
+    customers.push_back(customer);
+}
+
+void datastore_t::add(employee_t employee) {
+    employee.id = this->get_max_employee_id() + 1;
+    employees.push_back(employee);
+}
+```
+
+## Implementacja interfejsu graficznego
+
+Na szczycie interfejsu znajduje się `wxBoxSizer` zawierający dwa elementy:
+
+```cpp
+        // Element funkcji MyFrame::OnInit
+        auto sizer = new wxBoxSizer{wxHORIZONTAL};
+        g_display_list = new display_list_t{this};
+        sizer->Add(g_display_list, wxSizerFlags(1).Expand());
+        g_detail_view = new detail_view{this};
+        sizer->Add(g_detail_view, wxSizerFlags(1).Expand());
+```
+
+- `display_list_t g_display_list` - lewy panel interfejsu - tu znajduje się
+  lista pracowników, klientów i wizyt
+- `detail_view g_detail_view` - prawy panel interfejsu - tu znajdują się
+  szczegółowe informacje o wybranej jednostce danych
+
+### Implementacja klasy `display_list_t`
+
+```cpp
+typedef std::function<void(wxEvent&)> event_functor_t;
+class display_list_t : public wxWindow {
+    wxBoxSizer* main_sizer;
+    wxBoxSizer* top_sizer;
+    std::map<std::string, wxButton*> buttons;
+
+    button_list* butlist;
+
+    event_functor_t on_category;
+    event_functor_t on_detail; // nie używany
+
+    void clear_items();
+
+    public:
+    display_list_t(wxWindow*);
+    void display(int type);
+};
+```
+
+Klasa zawiera dwa sizery: `main_sizer` to sizer zawierający `top_sizer` oraz
+okno `button_list`, a `top_sizer` zawiera trzy przyciski służące do wyboru
+rodzaju danych wyświetlanych w `button_list`. `button_list` to dość prosta klasa
+składająca się z sizera, do którego dodaje przycisk dla każdej dodanej za
+pomocą metody `add` jednostki danych.
+
+```cpp
+display_list_t::display_list_t(wxWindow* parent) {
+    Create(parent, wxNewId(), wxDefaultPosition, wxSize{500, 500});
+
+    on_category = [this] (wxEvent& event) {
+        auto button = (wxButton*) event.GetEventObject();
+        for (auto& but : buttons) but.second->Enable();
+        button->Disable();
+
+        clear_items();
+        if (button == buttons["customers"])    display(0);
+        if (button == buttons["employees"])    display(1);
+        if (button == buttons["appointments"]) display(2);      
+    };
+
+    main_sizer = new wxBoxSizer{wxVERTICAL};
+    top_sizer = new wxBoxSizer{wxHORIZONTAL};
+
+    buttons["customers"] = new wxButton{this, wxNewId(), "Klienci"};
+    buttons["employees"] = new wxButton{this, wxNewId(), "Pracownicy"};
+    buttons["appointments"] = new wxButton{this, wxNewId(), "Wizyty"};
+    for (auto& button : buttons) {
+        button.second->Bind(wxEVT_BUTTON, on_category);
+        top_sizer->Add(button.second, wxSizerFlags(1).Expand());
+    }
+
+    butlist = new button_list{this};
+    butlist->draw();
+
+    main_sizer->Add(top_sizer, wxSizerFlags(0).Expand());
+    main_sizer->Add(butlist, wxSizerFlags(1).Expand());
+
+    SetSizerAndFit(main_sizer);
+}
+
+void display_list_t::clear_items() {
+    butlist->clear_all();
+}
+
+void display_list_t::display(int type) {
+    if (type == 0) buttons["customers"]->Disable();
+
+    clear_items();
+
+    if (type == 0) for (auto& cust : g_datastore.get_customers())
+        butlist->add_button(&cust);
+    if (type == 1) for (auto& empl : g_datastore.get_employees())
+        butlist->add_button(&empl);
+    if (type == 2) for (auto& appt : g_datastore.get_appointments())
+        butlist->add_button(&appt);
+    
+    butlist->draw();
+}
+```
+
+### Implementacja klasy `button_list` (`wxScrolledWindow`)
+
+```cpp
+class button_list : public wxScrolledWindow {
+    wxBoxSizer* main_sizer;
+
+    public:
+    button_list(wxWindow*);
+    void add_button(data_interface*);
+    void clear_all();
+    void draw();
+};
+
+button_list::button_list(wxWindow* parent) {
+    Create(parent, wxNewId(), wxDefaultPosition, wxSize{400, 400});
+    main_sizer = new wxBoxSizer{wxVERTICAL};
+}
+
+void button_list::add_button(data_interface* data) {
+    auto button = new data_button{data, this};
+    main_sizer->Add(button, wxSizerFlags(0).Expand());
+}
+
+void button_list::clear_all() {
+    main_sizer->Clear(true);
+}
+
+void button_list::draw() {
+    wxSize size = m_targetWindow->GetBestVirtualSize();
+    m_win->SetVirtualSize( size );
+    this->SetSizer(main_sizer);
+    this->FitInside();
+    this->SetScrollRate(5, 5);
+}
+```
+
+Zawartość metody `draw` skopiowana z <https://wiki.wxwidgets.org/Scrolling>
+
+Funkcjonalność zmieniania zawartości prawego panelu (widoku szczegółowego)
+zawarta jest w klasie `data_button`, której używa klasa `buttons_list`.
+
+### Implementacja klasy `data_button`
+
+```cpp
+class data_button : public wxButton {
+    data_interface* data;
+    public:
+    data_button(data_interface*, wxWindow*);
+    data_interface* get_data();
+};
+
+data_button::data_button(data_interface* data, wxWindow* parent) {
+    this->data = data;
+    Create(parent, wxNewId(), data->display_name());
+    Bind(wxEVT_BUTTON, [this] (wxEvent& event) {
+        g_detail_view->set_data(this->data);
+        // g_detail_view to zmienna globalna reprezentująca
+        // prawy panel interfejsu graficznego
+    });
+}
+
+data_interface* data_button::get_data() {
+    return this->data;
+}
+```
+
+### Implementacja `detail_view` - prawego panelu z widokiem szczegółowym
+
+```cpp
+class detail_view : public wxWindow {
+    event_functor_t on_edit;
+    event_functor_t on_appointment;
+    event_functor_t on_delete;
+
+    wxButton* edit_button;
+    wxButton* appointment_button;
+    wxButton* delete_button;
+
+    wxBoxSizer* main_sizer;
+    data_interface* data;
+    wxStaticText* text_widget;
+
+    public:
+    detail_view(wxWindow*);
+    void set_data(data_interface*);
+    void show_data();
+};  
+```
+
+---
+
+Prawy panel wyświetla wynik wywołania metody `data_interface::to_str`, która
+zwraca ciąg znaków zawierający wszystkie dane zawarte w jednostce danych. Ciąg
+znaków jest wyświetlany w widżecie `wxStaticText`.
+
+Na spodzie prawego panelu zawarte są 3 przyciski. Przycisk umawiający na wizytę
+działa tylko, gdy wybrane dane przedstawiają klienta.
+
+---
+
+```cpp
+detail_view::detail_view(wxWindow* parent) {
+    this->data = nullptr;
+    Create(parent, wxNewId());
+
+    this->on_edit = [this] (wxEvent& event) {
+        auto edit_window = new edit_window_t{nullptr, this->data};
+        edit_window->ShowModal();
+        g_display_list->display(0);
+    };
+
+    this->on_appointment = [this] (wxEvent& event) {
+        auto appointment = new new_appointment{
+            this, dynamic_cast<customer_t*>(this->data)};
+        appointment->ShowModal();
+    };
+
+    this->on_delete = [this] (wxEvent& event) {
+        if (this->data == nullptr) {
+            std::cout << "deleting nullptr" << std::endl;
+            return;
+        }
+        g_datastore.delete_data(this->data);
+        g_display_list->display(0);
+    };
+
+    main_sizer = new wxBoxSizer{wxVERTICAL};
+    main_sizer->Add(
+        new wxStaticText{
+            this, wxNewId(), "Widok szczegolowy"
+        },
+        wxSizerFlags(0).Expand()
+    );
+
+    this->text_widget = new wxStaticText{this, wxNewId(), "..."};
+    main_sizer->Add(this->text_widget, wxSizerFlags(1).Expand());
+
+    this->edit_button = new wxButton{this, wxNewId(), "Edytuj"};
+    edit_button->Bind(wxEVT_BUTTON, on_edit);
+
+    this->appointment_button = new wxButton{this, wxNewId(), "Stworz wizyte"};
+    appointment_button->Bind(wxEVT_BUTTON, on_appointment);
+
+    this->delete_button = new wxButton{this, wxNewId(), "Usun"};
+    delete_button->Bind(wxEVT_BUTTON, on_delete);
+    this->delete_button->SetBackgroundColour(wxColor{255, 200, 200});
+
+    main_sizer->Add(edit_button, wxSizerFlags(0).Expand());
+    main_sizer->Add(appointment_button, wxSizerFlags(0).Expand());
+    main_sizer->Add(delete_button, wxSizerFlags(0).Expand());
+
+    for (auto but : {edit_button, appointment_button, delete_button})
+        but->Disable();
+
+    SetSizerAndFit(main_sizer);
+}
+
+void detail_view::set_data(data_interface* data) {
+    this->data = data;
+    std::cout << data->to_str() << std::endl;
+    show_data();
+}
+
+void detail_view::show_data() {
+    if (this->data == nullptr) {
+        std::cout << "showing data for nullptr" << std::endl;
+        return;
+    }
+
+    this->text_widget->SetLabel(data->to_str());
+
+    appointment_button->Disable();
+    customer_t* ptr = dynamic_cast<customer_t*>(this->data);
+    if (ptr != nullptr) appointment_button->Enable();
+
+    edit_button->Enable();
+    delete_button->Enable();
+}
+```
+
+---
+
+Klasa `detail_view` przy edycji oraz umawianiu na wizytę używa innych klas:
+
+- `new_appointment`
+- `edit_window_t`
+
+### Implementacja `edit_window_t` - okna do edycji istniejących danych
+
+Klasa przypomina `new_data_widow_t`
+
+```cpp
+class edit_window_t : public wxDialog {
+    event_functor_t on_commit;
+    data_interface* data;
+    wxBoxSizer* main_sizer;
+    data_collector_t collector;
+
+    public:
+    edit_window_t(wxWindow*, data_interface*);
+};
+
+edit_window_t::edit_window_t(wxWindow* parent, data_interface* data) {
+    this->data = data;
+    Create(parent, wxNewId(), "Edytuj dane");
+
+    main_sizer = new wxBoxSizer{wxVERTICAL};
+    SetSizer(main_sizer);
+    collector.set_sizer(main_sizer);
+
+    this->on_commit = [this] (wxEvent& event) {
+        if (!collector.collect()) return;
+        g_display_list->display(0);
+        this->Close(true);
+    };
+
+    customer_t* customer = dynamic_cast<customer_t*>(data);
+    employee_t* employee = dynamic_cast<employee_t*>(data);
+    appointment_t* appointment = dynamic_cast<appointment_t*>(data);
+
+    if (customer)    add(collector, *customer);
+    if (employee)    add(collector, *employee);
+    if (appointment) add(collector, *appointment);
+
+    auto button = new wxButton{this, wxNewId(), "Zatwierdz"};
+    main_sizer->Add(button, wxSizerFlags(0).Expand());
+    button->Bind(wxEVT_BUTTON, on_commit);
+
+    SetSizerAndFit(main_sizer);
+}
+```
+
+\newpage
+
+### Implementacja klasy `new_appointment`
+
+![Okno do umawiania na wizytę](zdjecia/nowa_wizyta.png){width=50%}
+
+```cpp
+class new_appointment : public wxDialog {
+    std::function<void(wxEvent&)> on_commit;
+    wxRadioBox* radio;
+    appointment_t appointment;
+    data_collector_t collector;
+    wxArrayString options;
+    public:
+    new_appointment(wxWindow*, customer_t*);
+};
+```
+
+\newpage
+
+```cpp
+new_appointment::new_appointment(
+    wxWindow* parent, customer_t* customer) {
+    Create(parent, wxNewId(), "Nowa wizyta");
+
+    auto sizer = new wxBoxSizer{wxVERTICAL};
+    SetSizer(sizer);
+
+    collector.set_sizer(sizer);
+    add(collector, appointment);
+
+    auto employees = g_datastore.get_employees();
+    for (auto& empl : employees)
+        options.Add(empl.display_name());
+    
+    radio = new wxRadioBox{
+        this, wxNewId(), "Pracownik:",
+        wxDefaultPosition, wxDefaultSize,
+        options, 3
+    };
+    sizer->Add(radio, wxSizerFlags(1).Expand());
+
+    auto commit = new wxButton{this, wxNewId(), "Dodaj"};
+    sizer->Add(commit, wxSizerFlags(0).Expand());
+
+    on_commit = [this, customer] (wxEvent& event) {
+        if (!collector.collect()) return;
+        auto empl_id = radio->GetSelection();
+        if (empl_id == wxNOT_FOUND) return;
+        appointment.employee_id = 
+            g_datastore.get_employees()[empl_id].id;
+        appointment.customer_id = customer->id;
+        g_datastore.add(appointment);
+        this->Close(true);
+    };
+
+    commit->Bind(wxEVT_BUTTON, on_commit);
+
+    SetSizerAndFit(sizer);
+}
+```
+
+Jak wspomnieliśmy wcześniej, klasa używa `data_collector` - tak samo jak klasa
+do tworzenia nowych danych.
+
+Pierwszy raz w programie użyliśmy `wxRadioBox`. Jest to widżet użyty do wyboru
+mechanika.
+
+
+
+\newpage
+
+# Wnioski
+
+Przygotowanie tego projektu pozwoliło nam wykorzystać w praktycę wiedzę o
+programowaniu obiektowym.
+
+Nauczyliśmy się jak założenia tego paradygmatu pomagają w organizacji dużych
+projektów. Napisanie takiego programu w języku nie wspierającym OOP byłoby dużo
+trudniejsze. 
+
+Wykorzystując założenia jak:
+
+- abstrakcja
+- hermetyzacja
+- polimorfizm
+- dziedziczenie
+
+Napisaliśmy nasz największy program dotychczas bez rezygnowania z pisania
+czytelnego i przejrzystego kodu źródłowego.
+
+Programowanie obiektowe jest praktycznie niezbędne, jeśli programista chce
+zbudować interfejs graficzny.
+
+\newpage
+
+# Inne
+
+## Zmienne globalne
+
+W programie używaliśmy kilku zmiennych globalnych:
+
+- include/globals.hpp
+
+```cpp
+class display_list_t;
+class detail_view;
+
+typedef std::function<void(wxEvent&)> event_functor_t;
+
+extern datastore_t g_datastore;
+extern display_list_t* g_display_list;
+extern detail_view* g_detail_view;
+```
+
+---
+
+- src/globals.cpp
+
+
+```cpp
+#include "../include/globals.hpp"
+#include "../include/data_store.hpp"
+
+datastore_t g_datastore;
+
+display_list_t* g_display_list = nullptr;
+
+detail_view* g_detail_view = nullptr;
+```
+
+## Szczegółowa implementacja `datastore_t`
+
+```cpp
+class datastore_t {
+    std::vector<customer_t> customers;
+    std::vector<employee_t> employees;
+    std::vector<appointment_t> appointments;
+
+    int get_max_customer_id();
+    int get_max_employee_id();
+    int get_max_appointment_id();
+
+    public:
+    customer_t* get_customer(int);
+    employee_t* get_employee(int);
+    appointment_t* get_appointment(int);
+
+    void add(employee_t);
+    void add(customer_t);
+    void add(appointment_t);
+
+    void save(std::ostream& output);
+    void load(std::istream& input);
+
+    void delete_data(data_interface*);
+
+    std::vector<customer_t>& get_customers();
+    std::vector<employee_t>& get_employees();
+    std::vector<appointment_t>& get_appointments();
+};
+
+#include "../include/data_store.hpp"
+#include <string>
+#include <algorithm>
+#include <iostream>
+
+void datastore_t::save(std::ostream& output) {
+    for (const customer_t& customer : customers) {
+        output << "BEGIN CUSTOMER\n";
+        output << customer << '\n';
+    }
+    for (const employee_t& employee : employees) {
+        output << "BEGIN EMPLOYEE\n";
+        output << employee << '\n';
+    }
+    for (const appointment_t& app : appointments) {
+        output << "BEGIN APPOINTMENT\n";
+        output << app << '\n';
+    }
+}
+
+void datastore_t::load(std::istream& input) {
+    customers.clear();
+    employees.clear();
+    appointments.clear();
+
+    std::string current_line;
+    while (input) {
+        std::getline(input, current_line);
+        if (current_line == "BEGIN CUSTOMER") {
+            customer_t new_customer;
+            input >> new_customer;
+            customers.push_back(new_customer);
+        } else if (current_line == "BEGIN EMPLOYEE") {
+            employee_t new_employee;
+            input >> new_employee;
+            employees.push_back(new_employee);
+        } else if (current_line == "BEGIN APPOINTMENT") {
+            appointment_t app;
+            input >> app;
+            appointments.push_back(app);
+        }
+    }
+}
+
+int datastore_t::get_max_customer_id() {
+    int max = -1;
+    for (const auto& customer : customers)
+        max = std::max(customer.id, max);
+    return max;
+}
+
+int datastore_t::get_max_employee_id() {
+    int max = -1;
+    for (const auto& employee : employees)
+        max = std::max(employee.id, max);
+    return max;
+}
+
+int datastore_t::get_max_appointment_id() {
+    int max = -1;
+    for (const auto& appointment : appointments)
+        max = std::max(appointment.id, max);
+    return max;
+}
+
+void datastore_t::add(customer_t customer) {
+    customer.id = this->get_max_customer_id() + 1;
+    customers.push_back(customer);
+}
+
+void datastore_t::add(employee_t employee) {
+    employee.id = this->get_max_employee_id() + 1;
+    employees.push_back(employee);
+}
+
+void datastore_t::add(appointment_t appointment) {
+    appointment.id = this->get_max_appointment_id() + 1;
+    appointments.push_back(appointment);
+}
+
+customer_t* datastore_t::get_customer(int id) {
+    for (auto& customer : customers)
+        if (customer.id == id) return &customer;
+    return nullptr;
+}
+
+employee_t* datastore_t::get_employee(int id) {
+    for (auto& employee : employees)
+        if (employee.id == id) return &employee;
+    return nullptr;
+}
+
+appointment_t* datastore_t::get_appointment(int id) {
+    for (auto& appointment : appointments)
+        if (appointment.id == id) return &appointment;
+    return nullptr;
+}
+
+void datastore_t::delete_data(data_interface* data) {
+    customer_t* customer = dynamic_cast<customer_t*>(data);
+    employee_t* employee = dynamic_cast<employee_t*>(data);
+    appointment_t* appointment = dynamic_cast<appointment_t*>(data);
+
+    if (customer) {
+        for (auto iter = customers.begin(); iter != customers.end(); iter++) {
+            if (customer == &(*iter)) {
+                customers.erase(iter);
+                return;
+            }
+        }
+    }
+
+    if (employee) {
+        for (auto iter = employees.begin(); iter != employees.end(); iter++) {
+            if (employee == &(*iter)) {
+                employees.erase(iter);
+                return;
+            }
+        }
+    }
+
+    if (appointment) {
+        for (auto iter = appointments.begin(); iter != appointments.end(); iter++) {
+            if (appointment == &(*iter)) {
+                appointments.erase(iter);
+                return;
+            }
+        }
+    }
+
+    std::cout << "Nie usunięto elementu!!!" << std::endl;
+}
+
+std::vector<customer_t>& datastore_t::get_customers() {
+    return customers;
+};
+
+std::vector<employee_t>& datastore_t::get_employees() {
+    return employees;
+};
+
+std::vector<appointment_t>& datastore_t::get_appointments() {
+    return appointments;
+};
+```
+
+## Implementacja struktur przechowujących dane
+
+```cpp
+#include <string>
+#include <sstream>
+
+struct data_interface {
+    virtual std::string to_str() = 0;
+    virtual std::string display_name() = 0;
+};
+
+struct address_t {
+    std::string street, city, country;
+};
+
+inline std::ostream& operator<<(std::ostream& stream, const address_t& address) {
+    stream << address.street  << ' '
+           << address.city    << ' '
+           << address.country;
+    return stream;
+}
+
+inline std::istream& operator>>(std::istream& stream, address_t& address) {
+    stream >> address.street
+           >> address.city
+           >> address.country;
+    return stream;
+}
+
+struct name_t {
+    std::string name, surname;
+};
+
+inline std::ostream& operator<<(std::ostream& stream, const name_t& name) {
+    stream << name.name    << ' '
+           << name.surname;
+    return stream;
+}
+
+inline std::istream& operator>>(std::istream& stream, name_t& name) {
+    stream >> name.name
+           >> name.surname;
+    return stream;
+}
+
+struct personal_t {
+    name_t name;
+    address_t address;
+};
+
+inline std::ostream& operator<<(std::ostream& stream, const personal_t& personal) {
+    stream << personal.name    << ' '
+           << personal.address;
+    return stream;
+}
+
+inline std::istream& operator>>(std::istream& stream, personal_t& personal) {
+    stream >> personal.name
+           >> personal.address;
+    return stream;
+}
+
+struct customer_t : public data_interface{
+    int id = 0;
+    personal_t personal;
+
+    std::string display_name();
+    std::string to_str();
+};
+
+inline std::ostream& operator<<(std::ostream& stream, const customer_t& customer) {
+    stream << customer.id       << ' '
+           << customer.personal;
+    return stream;
+}
+
+inline std::istream& operator>>(std::istream& stream, customer_t& customer) {
+    stream >> customer.id
+           >> customer.personal;
+    return stream;
+}
+
+struct employee_t : public data_interface {
+    int id = 0;
+    personal_t personal;
+    int salary = 0;
+
+    std::string display_name();
+    std::string to_str();
+};
+
+inline std::ostream& operator<<(std::ostream& stream, const employee_t& employee) {
+    stream << employee.id       << ' '
+           << employee.personal << ' '
+           << employee.salary;
+    return stream;
+}
+
+inline std::istream& operator>>(std::istream& stream, employee_t& employee) {
+    stream >> employee.id
+           >> employee.personal
+           >> employee.salary;
+    return stream;
+}
+
+struct appointment_t : public data_interface {
+    int id;
+    int customer_id, employee_id;
+
+    std::string date;
+    std::string description;
+
+    std::string to_str();
+    std::string display_name();
+};
+
+inline std::ostream& operator<<(std::ostream& stream, 
+                                const appointment_t& app) {
+    auto desc_tmp = app.description;
+    for (char& ch : desc_tmp) if (ch == ' ') ch = '_';
+
+    stream << app.id << ' ' << app.customer_id 
+           << ' ' << app.employee_id << ' '
+           << app.date << ' ' << desc_tmp;
+    return stream;
+}
+
+inline std::istream& operator>>(std::istream& stream,
+                                appointment_t& app) {
+    std::string desc_tmp;
+
+    stream >> app.id >> app.customer_id >> app.employee_id
+           >> app.date >> desc_tmp;
+
+    for (char& ch : desc_tmp) if (ch == '_') ch = ' ';
+    app.description = desc_tmp;
+
+    return stream;
+}
+
+#include "../include/data_classes.hpp"
+#include "../include/globals.hpp"
+
+std::string customer_t::display_name() {
+    return personal.name.name + ' ' + personal.name.surname;
+}
+
+std::string employee_t::display_name() {
+    return personal.name.name + ' ' + personal.name.surname;
+}
+
+std::string customer_t::to_str() {
+    std::stringstream stream;
+    
+    stream << "Id: " << id << '\n';
+    stream << "Imie: " << personal.name.name << '\n';
+    stream << "Nazwisko: " << personal.name.surname << '\n';
+    stream << "Ulica: " << personal.address.street << '\n';
+    stream << "Miasto: " << personal.address.city << '\n';
+    stream << "Kraj: " << personal.address.country << '\n';
+
+    return stream.str();
+}
+
+std::string employee_t::to_str() {
+    std::stringstream stream;
+    
+    stream << "Id: " << id << '\n';
+    stream << "Pensja: " << salary << '\n';
+    stream << "Imie: " << personal.name.name << '\n';
+    stream << "Nazwisko: " << personal.name.name << '\n';
+    stream << "Ulica: " << personal.address.street << '\n';
+    stream << "Miasto: " << personal.address.city << '\n';
+    stream << "Kraj: " << personal.address.country << '\n';
+
+    return stream.str();
+}
+
+std::string appointment_t::to_str() {
+    std::stringstream stream;
+
+    customer_t* customer = g_datastore.get_customer(customer_id);
+    employee_t* employee = g_datastore.get_employee(employee_id);
+
+    stream << "Wizyta o id " << this->id << '\n';
+    stream << "Klient:\n"
+        << ((customer) ? customer->to_str() 
+                       : "Nie znaleziono klienta") << '\n';
+    stream << "Pracownik:\n"
+        << ((employee) ? employee->to_str() 
+                       : "Nie znaleziono pracownika") << '\n';
+    stream << "Opis:\n" << this->description << '\n';
+    stream << "Data:\n" << this->date << '\n';
+    return stream.str();
+}
+
+std::string appointment_t::display_name() {
+    return std::to_string(id) + ": " + date;
+}
+```
